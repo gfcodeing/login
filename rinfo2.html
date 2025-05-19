@@ -134,7 +134,10 @@
                     
                     checkInputs(); // 更新按钮状态
                 }
-                alert("不包含@不认为是邮箱不填写") 
+                else{
+                             alert("不包含@不认为是邮箱不填写") 
+                }
+       
             } catch (err) {
                 console.error('无法读取剪贴板:', err);
                 alert('无法访问剪贴板，请检查浏览器权限设置');
