@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册信息</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .btn-primary:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background-color: #f0ad4e;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .btn-tertiary {
+            background-color: #5bc0de;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .button-group {
+            margin-top: 15px;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+        .btn-secondary:hover {
+            background-color: #ec971f;
+        }
+        .btn-tertiary:hover {
+            background-color: #46b8da;
+        }
+    </style>
+</head>
+<body>
+    <h2>注册信息</h2>
+    <form id="registerForm" action="#" method="post" onsubmit="return false;">
+        <div class="form-group">
+            <label for="username">账号:</label>
+            <input type="text" id="username" name="username" placeholder="请输入账号" required>
+        </div>
+        <div class="form-group">
+            <label for="password">密码:</label>
+            <input type="text" id="password" name="password" placeholder="请输入密码" required>
+        </div>
+        <div class="button-group">
+            <input type="submit" class="btn-primary" id="registerBtn" value="开始注册" disabled>
+            <button type="button" class="btn-secondary" id="clearBtn">清空数据</button>
+            <button type="button" class="btn-tertiary" id="pasteBtn">填充剪贴板</button>
+        </div>
+    </form>
+
+    <script>
+        // 获取DOM元素
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const registerBtn = document.getElementById('registerBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const registerForm = document.getElementById('registerForm');
+    
+        // 监听输入变化，检查是否允许提交
+        function checkInputs() {
+            registerBtn.disabled = usernameInput.value.trim() === '' || passwordInput.value.trim() === '';
+        }
+    
+        // 清空表单
+        function clearForm() {
+            registerForm.reset();
+            registerBtn.disabled = true;
+        }
+    
+        // 从剪贴板粘贴内容并智能填充
+        async function pasteFromClipboard() {
+            try {
+                // 读取剪贴板内容
+                const clipboardText = (await navigator.clipboard.readText()).trim();
+                
+                // 只有当剪贴板内容包含@时才填充
+                if (clipboardText.includes('@')) {
+                    // 先清空表单
+                    clearForm();
+                    
+                    // 检查是否是"账号----密码"格式
+                    if (clipboardText.includes('----')) {
+                        const [username, password] = clipboardText.split('----').map(s => s.trim());
+                        usernameInput.value = username;
+                        passwordInput.value = password || '';
+                    } else {
+                        // 不是指定格式，全部填充到账号
+                        usernameInput.value = clipboardText;
+                    }
+                    
+                    checkInputs(); // 更新按钮状态
+                }
+                alert("不包含@不认为是邮箱不填写") 
+            } catch (err) {
+                console.error('无法读取剪贴板:', err);
+                alert('无法访问剪贴板，请检查浏览器权限设置');
+            }
+        }
+    
+        // 事件监听
+        usernameInput.addEventListener('input', checkInputs);
+        passwordInput.addEventListener('input', checkInputs);
+        clearBtn.addEventListener('click', clearForm);
+        pasteBtn.addEventListener('click', pasteFromClipboard);
+    
+        // 表单提交处理 - 跳转到指定网站并隐藏按钮
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!registerBtn.disabled) {
+                // 隐藏注册按钮
+                registerBtn.style.display = 'none';
+                // 跳转到chatgpt网站
+                window.location.href = 'https://chatgpt.com/';
+            }
+        });
+    </script>
+</body>
