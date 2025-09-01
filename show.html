@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据展示系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-top: 10px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .title {
+            color: #333;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .usage-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .usage-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .usage-example {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #495057;
+            word-break: break-all;
+            margin: 5px 0;
+        }
+
+        .data-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: none;
+        }
+
+        .data-container.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .data-title {
+            color: #333;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .data-row {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-row:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .data-row::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .data-content {
+            flex: 1;
+            padding-right: 20px;
+            padding-left: 15px;
+        }
+
+        .label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6c757d;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .label-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .email-icon { background: #007bff; }
+        .password-icon { background: #28a745; }
+        .token-icon { background: #fd7e14; }
+
+        .value {
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            font-weight: 600;
+            word-break: break-all;
+            line-height: 1.6;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .value:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: #667eea;
+        }
+
+        .email { color: #007bff; }
+        .password { color: #28a745; }
+        .token { color: #fd7e14; }
+
+        .copy-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 90px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .success-message.show {
+            transform: translateX(0);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .no-data-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header, .data-container {
+                padding: 20px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .data-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+                padding: 20px 15px;
+            }
+
+            .data-content {
+                padding-right: 0;
+                padding-left: 0;
+            }
+
+            .copy-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .usage-example {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="data-container" id="dataContainer">
+            <h2 class="data-title" id="dataTitle">数据详情</h2>
+            <div id="dataRows"></div>
+        </div>
+
+        <div class="data-container" id="noDataContainer">
+            <div class="no-data">
+                <div class="no-data-icon">📋</div>
+                <h3>暂无数据</h3>
+                <p>请在 URL 中添加参数</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-message" id="successMessage">
+        ✅ 已成功复制到剪贴板！
+    </div>
+
+    <script>
+        // 页面加载时自动解析URL参数
+        document.addEventListener('DOMContentLoaded', function() {
+            parseUrlData();
+        });
+
+        function parseUrlData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const uinfo = urlParams.get('uinfo');
+            
+            if (uinfo) {
+                try {
+                    const data = JSON.parse(decodeURIComponent(uinfo));
+                    console.log('解析的数据:', data);
+                    
+                    if (data.IsSuccess && data.Data) {
+                        displayData(data);
+                    } else {
+                        showError('数据格式错误: ' + (data.Error_Msg || '未知错误'));
+                    }
+                } catch (error) {
+                    console.error('解析数据失败:', error);
+                    showError('JSON解析失败: ' + error.message);
+                }
+            } else {
+                // 显示无数据状态
+                document.getElementById('noDataContainer').style.display = 'block';
+            }
+        }
+
+        function displayData(apiResponse) {
+            const dataContainer = document.getElementById('dataContainer');
+            const noDataContainer = document.getElementById('noDataContainer');
+            const dataTitle = document.getElementById('dataTitle');
+            const dataRows = document.getElementById('dataRows');
+
+            // 隐藏无数据容器
+            noDataContainer.style.display = 'none';
+
+            // 解析Data字段（可能是字符串格式的JSON）
+            let parsedData;
+            if (typeof apiResponse.Data === 'string') {
+                try {
+                    parsedData = JSON.parse(apiResponse.Data);
+                } catch (e) {
+                    parsedData = apiResponse.Data;
+                }
+            } else {
+                parsedData = apiResponse.Data;
+            }
+
+            if (!parsedData || parsedData.length === 0) {
+                showError('没有找到数据');
+                return;
+            }
+
+            const firstItem = parsedData[0];
+            dataTitle.textContent = firstItem.Title || '数据详情';
+
+            if (!firstItem.CardPwdArr || firstItem.CardPwdArr.length === 0) {
+                showError('没有找到卡密数据');
+                return;
+            }
+
+            const cardData = firstItem.CardPwdArr[0];
+            
+            // 解析账号密码数据 - 智能处理多种格式
+            let email = '';
+            let password = '';
+            
+            if (cardData.c) {
+                const data = cardData.c;
+                console.log('原始数据:', data);
+                
+                // 方式1: 检查是否包含"账号:"和"密码:"标识符
+                if (data.includes('账号:') && data.includes('密码:')) {
+                    const accountMatch = data.match(/账号:([^密码:]+)/);
+                    const passwordMatch = data.match(/密码:(.+)/);
+                    email = accountMatch ? accountMatch[1].trim() : '';
+                    password = passwordMatch ? passwordMatch[1].trim() : '';
+                }
+                // 方式2: 检查是否只包含"密码:"分隔符
+                else if (data.includes('密码:')) {
+                    const parts = data.split('密码:');
+                    email = parts[0] || '';
+                    password = parts[1] || '';
+                }
+                // 方式3: 检查是否使用换行符分隔 (\\n 或 \n)
+                else if (data.includes('\\n')) {
+                    const cleanData = data.replace(/\\n/g, '\n');
+                    const parts = cleanData.split('\n');
+                    email = parts[0] || '';
+                    password = parts[1] || '';
+                }
+                else if (data.includes('\n')) {
+                    const parts = data.split('\n');
+                    email = parts[0] || '';
+                    password = parts[1] || '';
+                }
+                // 方式4: 尝试其他可能的分隔符
+                else if (data.includes('|')) {
+                    const parts = data.split('|');
+                    email = parts[0] || '';
+                    password = parts[1] || '';
+                }
+                else {
+                    // 如果没有分隔符，整个作为邮箱处理
+                    email = data;
+                    password = '';
+                }
+                
+                console.log('解析结果 - 邮箱:', email, '密码:', password);
+            }
+            
+            const token = cardData.p || '';
+            
+            console.log('最终结果 - 邮箱:', email, '密码:', password, '令牌:', token);
+
+            dataRows.innerHTML = `
+                <div class="data-row">
+                    <div class="data-content">
+                        <div class="label">
+                            <div class="label-icon email-icon"></div>
+                            邮箱地址
+                        </div>
+                        <div class="value email" id="email">${email}</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('email')">
+                        📧 复制
+                    </button>
+                </div>
+
+                <div class="data-row">
+                    <div class="data-content">
+                        <div class="label">
+                            <div class="label-icon password-icon"></div>
+                            密码
+                        </div>
+                        <div class="value password" id="password">${password}</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('password')">
+                        🔒 复制
+                    </button>
+                </div>
+
+                <div class="data-row">
+                    <div class="data-content">
+                        <div class="label">
+                            <div class="label-icon token-icon"></div>
+                            令牌
+                        </div>
+                        <div class="value token" id="token">${token}</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('token')">
+                        🎫 复制
+                    </button>
+                </div>
+            `;
+
+            dataContainer.classList.add('show');
+            hideError();
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showSuccessMessage();
+                    animateCopyButton(event.target);
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showSuccessMessage();
+                    animateCopyButton(event.target);
+                }
+            } catch (err) {
+                console.error('复制失败:', err);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showSuccessMessage() {
+            const message = document.getElementById('successMessage');
+            message.classList.add('show');
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+
+        function animateCopyButton(button) {
+            const originalText = button.innerHTML;
+            button.classList.add('copied');
+            button.innerHTML = '✅ 已复制';
+            
+            setTimeout(() => {
+                button.classList.remove('copied');
+                button.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            
+            // 隐藏数据容器
+            document.getElementById('dataContainer').style.display = 'none';
+            document.getElementById('noDataContainer').style.display = 'none';
+        }
+
+        function hideError() {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.style.display = 'none';
+        }
+
+        // 键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        if (document.getElementById('email')) {
+                            copyToClipboard('email');
+                        }
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        if (document.getElementById('password')) {
+                            copyToClipboard('password');
+                        }
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        if (document.getElementById('token')) {
+                            copyToClipboard('token');
+                        }
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        location.reload();
+                        break;
+                }
+            }
+        });
+
+        // 添加一些调试信息
+        console.log('页面加载完成');
+        console.log('当前URL:', window.location.href);
+        console.log('URL参数:', new URLSearchParams(window.location.search).toString());
+    </script>
+</body>
+</html>
