@@ -321,8 +321,6 @@
 </head>
 <body>
     <div class="container">
-
-
         <div class="error-message" id="errorMessage"></div>
 
         <div class="data-container" id="dataContainer">
@@ -415,7 +413,7 @@
             
             if (cardData.c) {
                 const data = cardData.c;
-                console.log('原始数据:', data);
+                console.log('原始账号密码数据:', data);
                 
                 // 方式1: 检查是否包含"账号:"和"密码:"标识符
                 if (data.includes('账号:') && data.includes('密码:')) {
@@ -457,7 +455,21 @@
                 console.log('解析结果 - 邮箱:', email, '密码:', password);
             }
             
-            const token = cardData.p || '';
+            // 解析令牌数据 - 修复版本，去除"令牌:"前缀
+            let token = '';
+            if (cardData.p) {
+                const tokenData = cardData.p;
+                console.log('原始令牌数据:', tokenData);
+                
+                // 检查是否包含"令牌:"前缀，如果有则去除
+                if (tokenData.includes('令牌:')) {
+                    token = tokenData.replace('令牌:', '').trim();
+                } else {
+                    token = tokenData.trim();
+                }
+                
+                console.log('处理后的令牌:', token);
+            }
             
             console.log('最终结果 - 邮箱:', email, '密码:', password, '令牌:', token);
 
